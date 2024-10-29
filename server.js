@@ -22,6 +22,10 @@ const app = express();
 app.use(cors());
 app.options("*", cors());
 
+app.get("/", (req, res) => {
+  res.json({ message: "hello world" });
+});
+
 // compress all responses
 app.use(compression());
 
