@@ -10,6 +10,7 @@ const dbConnection = require("./config/database");
 const ApiError = require("./utils/apiError");
 const globalError = require("./middlewares/errorMiddleware");
 const mountRoutes = require("./routes");
+const { checkoutWebhook } = require("./services/orderService");
 
 dotenv.config({ path: "./config.env" });
 
@@ -28,6 +29,13 @@ app.get("/", (req, res) => {
 
 // compress all responses
 app.use(compression());
+
+//checkout webhook
+app.post(
+  "/webhook",
+  express.raw({ type: "application/json" }),
+  checkoutWebhook
+);
 
 //Middlewares
 app.use(express.json());
