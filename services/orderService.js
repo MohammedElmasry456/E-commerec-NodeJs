@@ -9,6 +9,7 @@ const cartModel = require("../models/cartModel");
 const productModel = require("../models/productModel");
 const orderModel = require("../models/orderModel");
 const { getAll, getOne } = require("./refactorHandler");
+const userModel = require("../models/userModel");
 
 // @desc create Cash Order
 // @route POST /api/v1/order/cartId
@@ -147,6 +148,38 @@ exports.checkOutSession = asyncHandler(async (req, res, next) => {
   res.status(200).send({ status: "success", session });
 });
 
+const webhookFun = asyncHandler(async (session) => {
+  const email = session.customer_email;
+  const totalPrice = session.display_items[0].amount / 100;
+  const cartId = session.client_reference_id;
+  const shippingAddress = session.metadata;
+
+  const cart = await cartModel.findById(cartId);
+  const user = await userModel.findOne({ email });
+
+  const order = await orderModel.create({
+    user: user._id,
+    cartItems: cart.cartItems,
+    shippingAddress,
+    totalPrice,
+    isPaid: true,
+    paidAt: Date.now(),
+    paymentMethodType: "card",
+  });
+
+  if (order) {
+    const bulkOption = cart.cartItems.map((item) => ({
+      updateOne: {
+        filter: { _id: item.product },
+        update: { $inc: { quantity: -item.quantity, sold: +item.quantity } },
+      },
+    }));
+
+    await productModel.bulkWrite(bulkOption, {});
+    await cartModel.findByIdAndDelete(cartId);
+  }
+});
+
 exports.checkoutWebhook = asyncHandler(async (req, res, next) => {
   let event = req.body;
   // Only verify the event if you have an endpoint secret defined.
@@ -167,8 +200,8 @@ exports.checkoutWebhook = asyncHandler(async (req, res, next) => {
   }
 
   if (event.type === "checkout.session.completed") {
-    console.log("creae order her.......");
-    console.log(event);
-    console.log(event.data.object.client_reference_id);
+    webhookFun(event.data.object);
   }
+
+  res.send({ recevied: true });
 });
