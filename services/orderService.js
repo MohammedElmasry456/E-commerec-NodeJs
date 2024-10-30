@@ -150,7 +150,7 @@ exports.checkOutSession = asyncHandler(async (req, res, next) => {
 
 const webhookFun = asyncHandler(async (session) => {
   const email = session.customer_email;
-  const totalPrice = session.display_items[0].amount / 100;
+  const totalPrice = session.amount_total / 100;
   const cartId = session.client_reference_id;
   const shippingAddress = session.metadata;
 
@@ -180,6 +180,9 @@ const webhookFun = asyncHandler(async (session) => {
   }
 });
 
+// @desc create online Order
+// @route POST /checkoutWebhook
+// @access private/user
 exports.checkoutWebhook = asyncHandler(async (req, res, next) => {
   let event = req.body;
   // Only verify the event if you have an endpoint secret defined.
