@@ -148,22 +148,6 @@ exports.checkOutSession = asyncHandler(async (req, res, next) => {
   res.status(200).send({ status: "success", session });
 });
 
-const createOrd = async (user, cart, shippingAddress, totalPrice) => {
-  console.log("hello from fun");
-  console.log({ user }, { cart }, { shippingAddress }, { totalPrice });
-  const order = await orderModel.create({
-    user: user._id,
-    cartItems: cart.cartItems,
-    shippingAddress,
-    totalPrice,
-    isPaid: true,
-    paidAt: Date.now(),
-    paymentMethodType: "card",
-  });
-
-  return order;
-};
-
 const webhookFun = asyncHandler(async (session) => {
   const email = session.customer_email;
   const totalPrice = session.amount_total / 100;
@@ -173,9 +157,16 @@ const webhookFun = asyncHandler(async (session) => {
   const cart = await cartModel.findById(cartId);
   const user = await userModel.findOne({ email });
 
-  const order = await createOrd(user, cart, shippingAddress, totalPrice);
-  console.log("hello after fun");
+  const order = await orderModel.create({
+    user: "67253e7e898d0970dc4f0a0f",
+    cartItems: [
+      { product: "67253e7e898d0970dc4f0a0f", quantity: 1, color: "red" },
+    ],
+    totalPrice: 1000,
+  });
+
   if (order) {
+    console.log("order Created");
     const bulkOption = cart.cartItems.map((item) => ({
       updateOne: {
         filter: { _id: item.product },
