@@ -18,10 +18,7 @@ router
   .route("/")
   .get(allowedTo("user", "admin", "manager"), filterOrder, getAllOrders);
 router.route("/checkOut/:cartId").get(allowedTo("user"), checkOutSession);
-router
-  .route("/:cartId")
-  .post(allowedTo("user"), createCashOrder)
-  .get(checkOutSession);
+router.route("/:cartId").post(allowedTo("user"), createCashOrder);
 
 router
   .route("/:id/deliver")
