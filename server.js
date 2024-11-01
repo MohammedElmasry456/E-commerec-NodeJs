@@ -24,7 +24,7 @@ app.use(cors());
 app.options("*", cors());
 
 app.get("/", (req, res) => {
-  res.json({ message: "hello my world" });
+  res.json({ message: "hello my world ." });
 });
 
 // compress all responses
