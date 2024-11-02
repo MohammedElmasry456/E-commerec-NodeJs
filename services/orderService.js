@@ -157,26 +157,34 @@ const webhookFun = asyncHandler(async (session) => {
   const cart = await cartModel.findById(cartId);
   const user = await userModel.findOne({ email });
 
-  const order = await orderModel.create({
-    user: "67253e7e898d0970dc4f0a0f",
-    cartItems: [
-      { product: "67253e7e898d0970dc4f0a0f", quantity: 1, color: "red" },
-    ],
-    totalPrice: 1000,
+  console.log({
+    user: user._id,
+    cartItems: cart.cartItems,
+    shippingAddress,
+    totalPrice,
+    isPaid: true,
+    paidAt: Date.now(),
+    paymentMethodType: "card",
   });
+  // const order = await orderModel.create({
+  //   user: user._id,
+  //   cartItems: cart.cartItems,
+  //   shippingAddress,
+  //   totalPrice,
+  //   isPaid: true,
+  //   paidAt: Date.now(),
+  //   paymentMethodType: "card",
+  // });
 
-  if (order) {
-    console.log("order Created");
-    const bulkOption = cart.cartItems.map((item) => ({
-      updateOne: {
-        filter: { _id: item.product },
-        update: { $inc: { quantity: -item.quantity, sold: +item.quantity } },
-      },
-    }));
+  const bulkOption = cart.cartItems.map((item) => ({
+    updateOne: {
+      filter: { _id: item.product },
+      update: { $inc: { quantity: -item.quantity, sold: +item.quantity } },
+    },
+  }));
 
-    await productModel.bulkWrite(bulkOption, {});
-    await cartModel.findByIdAndDelete(cartId);
-  }
+  await productModel.bulkWrite(bulkOption, {});
+  await cartModel.findByIdAndDelete(cartId);
 });
 
 // @desc create online Order
