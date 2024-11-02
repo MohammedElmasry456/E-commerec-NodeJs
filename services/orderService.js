@@ -187,6 +187,10 @@ const webhookFun = asyncHandler(async (session) => {
 // @route POST /checkoutWebhook
 // @access private/user
 exports.checkoutWebhook = asyncHandler(async (req, res, next) => {
+  if (req.originalUrl === "/favicon.ico") {
+    return res.status(204).end(); // تجاهل طلب favicon.ico
+  }
+
   let event = req.body;
   // Only verify the event if you have an endpoint secret defined.
   // Otherwise use the basic event deserialized with JSON.parse
