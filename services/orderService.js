@@ -132,7 +132,7 @@ exports.checkOutSession = asyncHandler(async (req, res, next) => {
           product_data: {
             name: req.user.name,
           },
-          unit_amount: totalPrice * 100,
+          unit_amount: Math.round(totalPrice * 100),
         },
         quantity: 1,
       },
