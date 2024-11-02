@@ -156,35 +156,34 @@ const webhookFun = asyncHandler(async (session) => {
 
   const cart = await cartModel.findById(cartId);
   const user = await userModel.findOne({ email });
+  let order;
 
-  console.log({
-    user: user._id,
-    cartItems: cart.cartItems,
-    shippingAddress,
-    totalPrice,
-    isPaid: true,
-    paidAt: Date.now(),
-    paymentMethodType: "card",
-  });
-  // const order = await orderModel.create({
-  //   user: user._id,
-  //   cartItems: cart.cartItems,
-  //   shippingAddress,
-  //   totalPrice,
-  //   isPaid: true,
-  //   paidAt: Date.now(),
-  //   paymentMethodType: "card",
-  // });
+  try {
+    order = await orderModel.create({
+      user: user._id,
+      cartItems: cart.cartItems,
+      shippingAddress,
+      totalPrice,
+      isPaid: true,
+      paidAt: Date.now(),
+      paymentMethodType: "card",
+    });
+    console.log("Order created successfully:", order);
+  } catch (error) {
+    console.error("Error creating order:", error);
+  }
 
-  const bulkOption = cart.cartItems.map((item) => ({
-    updateOne: {
-      filter: { _id: item.product },
-      update: { $inc: { quantity: -item.quantity, sold: +item.quantity } },
-    },
-  }));
+  if (order) {
+    const bulkOption = cart.cartItems.map((item) => ({
+      updateOne: {
+        filter: { _id: item.product },
+        update: { $inc: { quantity: -item.quantity, sold: +item.quantity } },
+      },
+    }));
 
-  await productModel.bulkWrite(bulkOption, {});
-  await cartModel.findByIdAndDelete(cartId);
+    await productModel.bulkWrite(bulkOption, {});
+    await cartModel.findByIdAndDelete(cartId);
+  }
 });
 
 // @desc create online Order
