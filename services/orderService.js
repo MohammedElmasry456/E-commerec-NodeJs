@@ -156,28 +156,16 @@ const webhookFun = asyncHandler(async (session) => {
 
   const cart = await cartModel.findById(cartId);
   const user = await userModel.findOne({ email });
-  let order;
 
-  try {
-    console.log("im hee");
-    // eslint-disable-next-line new-cap
-    order = new orderModel({
-      user: user._id,
-      cartItems: cart.cartItems,
-      shippingAddress,
-      totalPrice,
-      isPaid: true,
-      paidAt: Date.now(),
-      paymentMethodType: "card",
-    });
-
-    // حفظ المستند في قاعدة البيانات
-    const savedOrder = await order.save();
-    console.log("Order created successfully:", savedOrder);
-    return savedOrder;
-  } catch (error) {
-    console.error("Error creating order:", error);
-  }
+  const order = await orderModel.create({
+    user: user._id,
+    cartItems: cart.cartItems,
+    shippingAddress,
+    totalPrice,
+    isPaid: true,
+    paidAt: Date.now(),
+    paymentMethodType: "card",
+  });
 
   if (order) {
     const bulkOption = cart.cartItems.map((item) => ({
@@ -189,6 +177,9 @@ const webhookFun = asyncHandler(async (session) => {
 
     await productModel.bulkWrite(bulkOption, {});
     await cartModel.findByIdAndDelete(cartId);
+    console.log("Process Completed Successfully");
+  } else {
+    console.log("There Are Error in creating Order");
   }
 });
 
