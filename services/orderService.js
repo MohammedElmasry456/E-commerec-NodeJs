@@ -159,7 +159,9 @@ const webhookFun = asyncHandler(async (session) => {
   let order;
 
   try {
-    order = await orderModel.create({
+    console.log("im hee");
+    // eslint-disable-next-line new-cap
+    order = new orderModel({
       user: user._id,
       cartItems: cart.cartItems,
       shippingAddress,
@@ -168,7 +170,11 @@ const webhookFun = asyncHandler(async (session) => {
       paidAt: Date.now(),
       paymentMethodType: "card",
     });
-    console.log("Order created successfully:", order);
+
+    // حفظ المستند في قاعدة البيانات
+    const savedOrder = await order.save();
+    console.log("Order created successfully:", savedOrder);
+    return savedOrder;
   } catch (error) {
     console.error("Error creating order:", error);
   }
