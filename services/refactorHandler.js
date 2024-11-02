@@ -29,7 +29,9 @@ exports.updateOne = (model) =>
         new ApiError(`not document for this id ${req.params.id}`, 404)
       );
     }
-    document.save();
+    if (model === reviewModel) {
+      await document.constructor.calcAvgAndQuantity(document.product);
+    }
     res.status(200).json({ data: document });
   });
 
