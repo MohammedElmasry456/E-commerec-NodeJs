@@ -123,8 +123,9 @@ exports.checkOutSession = asyncHandler(async (req, res, next) => {
         currency: "egp",
         product_data: {
           name: item.product.title,
+          images: [item.product.imageCover],
+          description: item.color,
         },
-        images: [item.product.imageCover],
         unit_amount: Math.round(item.product.price * 100),
       },
       quantity: item.quantity,
