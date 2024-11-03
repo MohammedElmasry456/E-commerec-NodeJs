@@ -5,6 +5,8 @@ const morgan = require("morgan");
 const dotenv = require("dotenv");
 const cors = require("cors");
 const compression = require("compression");
+const rateLimit = require("express-rate-limit");
+const hpp = require("hpp");
 
 const dbConnection = require("./config/database");
 const ApiError = require("./utils/apiError");
@@ -23,10 +25,6 @@ const app = express();
 app.use(cors());
 app.options("*", cors());
 
-app.get("/", (req, res) => {
-  res.json({ message: "hello my world" });
-});
-
 // compress all responses
 app.use(compression());
 
@@ -38,7 +36,7 @@ app.post(
 );
 
 //Middlewares
-app.use(express.json());
+app.use(express.json({ limit: "20kb" }));
 app.use(express.static(path.join(__dirname, "uploads")));
 
 if (process.env.NODE_ENV === "development") {
@@ -46,9 +44,33 @@ if (process.env.NODE_ENV === "development") {
   console.log(`Mode: ${process.env.NODE_ENV}`);
 }
 
+//Express middleware to protect against HTTP Parameter Pollution attacks
+app.use(
+  hpp({
+    whitelist: [
+      "price",
+      "quantity",
+      "sold",
+      "ratingsQuantity",
+      "ratingAverage",
+    ],
+  })
+);
+
+// Limit each IP to 100 requests per `window` (here, per 15 minutes).
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 100,
+});
+
+// Apply the rate limiting middleware to all requests.
+app.use("/api", limiter);
+
 //Mount Routes
 mountRoutes(app);
-
+app.get("/", (req, res) => {
+  res.json({ message: "hello my world" });
+});
 app.all("*", (req, res, next) => {
   next(new ApiError(`cant't find this route ${req.originalUrl}`, 400));
 });

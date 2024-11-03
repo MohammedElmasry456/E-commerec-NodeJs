@@ -111,35 +111,27 @@ exports.updateOrderToDelivered = asyncHandler(async (req, res, next) => {
 // @route GET /api/v1/order/:cartId
 // @access private/user
 exports.checkOutSession = asyncHandler(async (req, res, next) => {
-  const taxPrice = 0;
-  const shippingPrice = 0;
-
   const cart = await cartModel.findById(req.params.cartId);
 
   if (!cart) {
     return next(new ApiError("you don't have cart yet", 404));
   }
-  let totalPrice = cart.totalPriceAfterDis
-    ? cart.totalPriceAfterDis
-    : cart.totalPrice;
-  totalPrice = totalPrice + taxPrice + shippingPrice;
 
   const session = await stripe.checkout.sessions.create({
-    line_items: [
-      {
-        price_data: {
-          currency: "egp",
-          product_data: {
-            name: req.user.name,
-          },
-          unit_amount: Math.round(totalPrice * 100),
+    line_items: cart.cartItems.map((item) => ({
+      price_data: {
+        currency: "egp",
+        product_data: {
+          name: item.product.title,
         },
-        quantity: 1,
+        images: [item.product.imageCover],
+        unit_amount: Math.round(item.product.price * 100),
       },
-    ],
+      quantity: item.quantity,
+    })),
     mode: "payment",
-    success_url: `${req.protocol}://${req.get("host")}/api/v1/products`,
-    cancel_url: `${req.protocol}://${req.get("host")}/api/v1/products`,
+    success_url: `${req.protocol}://${req.get("host")}/api/v1/order`,
+    cancel_url: `${req.protocol}://${req.get("host")}/api/v1/cart`,
     client_reference_id: req.params.cartId,
     customer_email: req.user.email,
     metadata: req.body.shippingAddress,
@@ -187,15 +179,8 @@ const webhookFun = asyncHandler(async (session) => {
 // @route POST /checkoutWebhook
 // @access private/user
 exports.checkoutWebhook = asyncHandler(async (req, res, next) => {
-  if (req.originalUrl === "/favicon.ico") {
-    return res.status(204).end(); // تجاهل طلب favicon.ico
-  }
-
   let event = req.body;
-  // Only verify the event if you have an endpoint secret defined.
-  // Otherwise use the basic event deserialized with JSON.parse
   if (process.env.STRIPE_Signing_SECRET) {
-    // Get the signature sent by Stripe
     const signature = req.headers["stripe-signature"];
     try {
       event = stripe.webhooks.constructEvent(
@@ -210,7 +195,7 @@ exports.checkoutWebhook = asyncHandler(async (req, res, next) => {
   }
 
   if (event.type === "checkout.session.completed") {
-    webhookFun(event.data.object);
+    await webhookFun(event.data.object);
   }
 
   res.send({ recevied: true });
