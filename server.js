@@ -7,6 +7,8 @@ const cors = require("cors");
 const compression = require("compression");
 const rateLimit = require("express-rate-limit");
 const hpp = require("hpp");
+const mongoSanitize = require("express-mongo-sanitize");
+const { xss } = require("express-xss-sanitizer");
 
 const dbConnection = require("./config/database");
 const ApiError = require("./utils/apiError");
@@ -65,6 +67,10 @@ const limiter = rateLimit({
 
 // Apply the rate limiting middleware to all requests.
 app.use("/api", limiter);
+
+// To remove data using these defaults:
+app.use(mongoSanitize());
+app.use(xss());
 
 //Mount Routes
 mountRoutes(app);

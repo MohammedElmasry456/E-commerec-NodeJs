@@ -6,6 +6,7 @@ const userModel = require("../models/userModel");
 const ApiError = require("../utils/apiError");
 const sendMail = require("../utils/sendMail");
 const createToken = require("../utils/createToken");
+const { sanitizeUser } = require("../utils/validators/sanitizeData");
 
 // @desc signUp
 // @route POST /api/v1/auth/signUp
@@ -19,7 +20,7 @@ exports.signUp = asyncHandler(async (req, res, next) => {
   });
 
   const token = createToken(newUser._id);
-  res.status(201).json({ date: newUser, token });
+  res.status(201).json({ date: sanitizeUser(newUser), token });
 });
 
 // @desc login
