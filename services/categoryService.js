@@ -1,6 +1,4 @@
-const sharp = require("sharp");
 const asyncHandler = require("express-async-handler");
-const { v4: uuidv4 } = require("uuid");
 const CategoryModel = require("../models/categoryModel");
 const {
   deleteOne,
@@ -9,34 +7,18 @@ const {
   getOne,
   getAll,
 } = require("./refactorHandler");
-const { uploadSingleImage } = require("../middlewares/uploadImageMiddleware");
+const { multerOptions } = require("../middlewares/uploadImageMiddleware");
 
-// Disk Storage Method
-// const storage = multer.diskStorage({
-//   destination: function (req, file, cb) {
-//     cb(null, "uploads/categories");
-//   },
-//   filename: function (req, file, cb) {
-//     const ext = file.mimetype.split("/")[1];
-//     const filename = `category-${uuidv4()}-${Date.now()}.${ext}`;
-//     cb(null, filename);
-//   },
-// });
+exports.uploadCategoryImage = multerOptions(
+  400,
+  400,
+  "uploads/categories"
+).single("image");
 
-exports.uploadCategoryImage = uploadSingleImage("image");
-
-exports.resizeCategoryImage = asyncHandler(async (req, res, next) => {
-  const filename = `category-${uuidv4()}-${Date.now()}.jpeg`;
+exports.setCategoryImage = asyncHandler(async (req, res, next) => {
   if (req.file) {
-    await sharp(req.file.buffer)
-      .resize(600, 600)
-      .toFormat("jpeg")
-      .jpeg({ quality: 90 })
-      .toFile(`uploads/categories/${filename}`);
-
-    req.body.image = filename;
+    req.body.image = req.file.path;
   }
-
   next();
 });
 

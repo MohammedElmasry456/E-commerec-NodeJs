@@ -1,7 +1,7 @@
 const express = require("express");
 const {
   uploadUserImage,
-  resizeUserImage,
+  setUserImage,
   getAllUsers,
   getUser,
   updateUser,
@@ -33,7 +33,7 @@ router.put("/changeMyPassword", changeMyPassword);
 router.put(
   "/updateMe",
   uploadUserImage,
-  resizeUserImage,
+  setUserImage,
   updateLoggedUserValidator,
   updateMe
 );
@@ -45,12 +45,12 @@ router.use(allowedTo("admin", "manager"));
 router.put("/changePassword/:id", changePasswordValidator, changeUserPassword);
 router
   .route("/")
-  .post(uploadUserImage, resizeUserImage, createUserValidator, createUser)
+  .post(uploadUserImage, setUserImage, createUserValidator, createUser)
   .get(getAllUsers);
 router
   .route("/:id")
   .get(getUserValidator, getUser)
-  .put(uploadUserImage, resizeUserImage, updateUserValidator, updateUser)
+  .put(uploadUserImage, setUserImage, updateUserValidator, updateUser)
   .delete(deleteUserValidator, deleteUser);
 
 module.exports = router;

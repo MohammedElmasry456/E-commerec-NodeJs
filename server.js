@@ -2,7 +2,7 @@ const path = require("path");
 
 const express = require("express");
 const morgan = require("morgan");
-const dotenv = require("dotenv");
+require("dotenv").config({ path: "./config.env" });
 const cors = require("cors");
 const compression = require("compression");
 const rateLimit = require("express-rate-limit");
@@ -15,8 +15,6 @@ const ApiError = require("./utils/apiError");
 const globalError = require("./middlewares/errorMiddleware");
 const mountRoutes = require("./routes");
 const { checkoutWebhook } = require("./services/orderService");
-
-dotenv.config({ path: "./config.env" });
 
 //connect with DB
 dbConnection();

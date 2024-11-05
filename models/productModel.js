@@ -74,20 +74,20 @@ const productSchema = new mongoose.Schema(
   }
 );
 
-const setUrl = (doc) => {
-  if (doc.imageCover) {
-    const url = `${process.env.BASE_URL}/products/${doc.imageCover}`;
-    doc.imageCover = url;
-  }
-  if (doc.images) {
-    const imagesList = [];
-    doc.images.map((image) => {
-      const url = `${process.env.BASE_URL}/products/${image}`;
-      imagesList.push(url);
-    });
-    doc.images = imagesList;
-  }
-};
+// const setUrl = (doc) => {
+//   if (doc.imageCover) {
+//     const url = `${process.env.BASE_URL}/products/${doc.imageCover}`;
+//     doc.imageCover = url;
+//   }
+//   if (doc.images) {
+//     const imagesList = [];
+//     doc.images.map((image) => {
+//       const url = `${process.env.BASE_URL}/products/${image}`;
+//       imagesList.push(url);
+//     });
+//     doc.images = imagesList;
+//   }
+// };
 
 //populate Reviews
 productSchema.virtual("reviews", {
@@ -96,14 +96,14 @@ productSchema.virtual("reviews", {
   localField: "_id",
 });
 
-//for all but not create
-productSchema.post("init", (doc) => {
-  setUrl(doc);
-});
-//for create
-productSchema.post("save", (doc) => {
-  setUrl(doc);
-});
+// //for all but not create
+// productSchema.post("init", (doc) => {
+//   setUrl(doc);
+// });
+// //for create
+// productSchema.post("save", (doc) => {
+//   setUrl(doc);
+// });
 
 //Mongoose Query Middleware
 productSchema.pre(/^find/, function (next) {

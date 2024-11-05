@@ -21,21 +21,21 @@ const CategorySchema = new mongoose.Schema(
   }
 );
 
-const setUrl = (doc) => {
-  if (doc.image) {
-    const url = `${process.env.BASE_URL}/categories/${doc.image}`;
-    doc.image = url;
-  }
-};
+// const setUrl = (doc) => {
+//   if (doc.image) {
+//     const url = `${process.env.BASE_URL}/categories/${doc.image}`;
+//     doc.image = url;
+//   }
+// };
 
-//for all but not create
-CategorySchema.post("init", (doc) => {
-  setUrl(doc);
-});
-//for create
-CategorySchema.post("save", (doc) => {
-  setUrl(doc);
-});
+// //for all but not create
+// CategorySchema.post("init", (doc) => {
+//   setUrl(doc);
+// });
+// //for create
+// CategorySchema.post("save", (doc) => {
+//   setUrl(doc);
+// });
 
 const CategoryModel = mongoose.model("category", CategorySchema);
 module.exports = CategoryModel;

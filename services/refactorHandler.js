@@ -2,6 +2,7 @@ const asyncHandler = require("express-async-handler");
 const ApiError = require("../utils/apiError");
 const ApiFeatures = require("../utils/apiFeatures");
 const reviewModel = require("../models/reviewModel");
+const { deleteImage } = require("../utils/deleteImage");
 
 exports.deleteOne = (model) =>
   asyncHandler(async (req, res, next) => {
@@ -15,20 +16,25 @@ exports.deleteOne = (model) =>
     if (model === reviewModel) {
       await document.constructor.calcAvgAndQuantity(document.product);
     }
+
+    await deleteImage(document);
     res.status(204).send();
   });
 
 exports.updateOne = (model) =>
   asyncHandler(async (req, res, next) => {
-    const document = await model.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
-    if (!document) {
+    const oldDoc = await model.findById(req.params.id);
+    if (!oldDoc) {
       return next(
         new ApiError(`not document for this id ${req.params.id}`, 404)
       );
     }
+    await deleteImage(oldDoc, req);
+    const document = await model.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    });
+
     if (model === reviewModel) {
       await document.constructor.calcAvgAndQuantity(document.product);
     }

@@ -1,7 +1,5 @@
-const sharp = require("sharp");
 const asyncHandler = require("express-async-handler");
-const { v4: uuidv4 } = require("uuid");
-const { uploadSingleImage } = require("../middlewares/uploadImageMiddleware");
+const { multerOptions } = require("../middlewares/uploadImageMiddleware");
 const brandModel = require("../models/brandModel");
 const {
   deleteOne,
@@ -11,20 +9,14 @@ const {
   getAll,
 } = require("./refactorHandler");
 
-exports.uploadBrandImage = uploadSingleImage("image");
+exports.uploadBrandImage = multerOptions(400, 400, "uploads/brands").single(
+  "image"
+);
 
-exports.resizeBrandImage = asyncHandler(async (req, res, next) => {
-  const filename = `brand-${uuidv4()}-${Date.now()}.jpeg`;
+exports.setBrandImage = asyncHandler(async (req, res, next) => {
   if (req.file) {
-    await sharp(req.file.buffer)
-      .resize(600, 600)
-      .toFormat("jpeg")
-      .jpeg({ quality: 90 })
-      .toFile(`uploads/brands/${filename}`);
-
-    req.body.image = filename;
+    req.body.image = req.file.path;
   }
-
   next();
 });
 

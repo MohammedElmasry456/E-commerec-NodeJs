@@ -1,26 +1,19 @@
 const bcryptjs = require("bcryptjs");
-const sharp = require("sharp");
 const asyncHandler = require("express-async-handler");
-const { v4: uuidv4 } = require("uuid");
-const { uploadSingleImage } = require("../middlewares/uploadImageMiddleware");
-
+const { multerOptions } = require("../middlewares/uploadImageMiddleware");
 const { deleteOne, createOne, getOne, getAll } = require("./refactorHandler");
 const userModel = require("../models/userModel");
 const ApiError = require("../utils/apiError");
 const createToken = require("../utils/createToken");
+const { deleteImage } = require("../utils/deleteImage");
 
-exports.uploadUserImage = uploadSingleImage("profileImage");
+exports.uploadUserImage = multerOptions(500, 500, "uploads/users").single(
+  "profileImage"
+);
 
-exports.resizeUserImage = asyncHandler(async (req, res, next) => {
-  const filename = `user-${uuidv4()}-${Date.now()}.jpeg`;
+exports.setUserImage = asyncHandler(async (req, res, next) => {
   if (req.file) {
-    await sharp(req.file.buffer)
-      .resize(600, 600)
-      .toFormat("jpeg")
-      .jpeg({ quality: 90 })
-      .toFile(`uploads/users/${filename}`);
-
-    req.body.profileImage = filename;
+    req.body.profileImage = req.file.path;
   }
   next();
 });
@@ -44,6 +37,11 @@ exports.getUser = getOne(userModel);
 // @route PUT /api/v1/users/:id
 // @access private
 exports.updateUser = asyncHandler(async (req, res, next) => {
+  const oldUser = await userModel.findById(req.params.id);
+  if (!oldUser) {
+    return next(new ApiError(`not User for this id ${req.params.id}`, 404));
+  }
+  await deleteImage(oldUser);
   const User = await userModel.findByIdAndUpdate(
     req.params.id,
     {
@@ -60,9 +58,7 @@ exports.updateUser = asyncHandler(async (req, res, next) => {
       runValidators: true,
     }
   );
-  if (!User) {
-    return next(new ApiError(`not User for this id ${req.params.id}`, 404));
-  }
+
   res.status(200).json({ data: User });
 });
 
@@ -124,6 +120,9 @@ exports.changeMyPassword = asyncHandler(async (req, res, next) => {
 // @route PUT /api/v1/users/updateMe
 // @access private
 exports.updateMe = asyncHandler(async (req, res, next) => {
+  const olduser = await userModel.findById(req.user._id);
+  await deleteImage(olduser);
+
   const user = await userModel.findByIdAndUpdate(
     req.user._id,
     {

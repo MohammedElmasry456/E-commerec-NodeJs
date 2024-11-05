@@ -21,21 +21,21 @@ const brandSchema = new mongoose.Schema(
   }
 );
 
-const setUrl = (doc) => {
-  if (doc.image) {
-    const url = `${process.env.BASE_URL}/brands/${doc.image}`;
-    doc.image = url;
-  }
-};
+// const setUrl = (doc) => {
+//   if (doc.image) {
+//     const url = `${process.env.BASE_URL}/brands/${doc.image}`;
+//     doc.image = url;
+//   }
+// };
 
-//for all but not create
-brandSchema.post("init", (doc) => {
-  setUrl(doc);
-});
-//for create
-brandSchema.post("save", (doc) => {
-  setUrl(doc);
-});
+// //for all but not create
+// brandSchema.post("init", (doc) => {
+//   setUrl(doc);
+// });
+// //for create
+// brandSchema.post("save", (doc) => {
+//   setUrl(doc);
+// });
 
 const brandModel = mongoose.model("brand", brandSchema);
 module.exports = brandModel;

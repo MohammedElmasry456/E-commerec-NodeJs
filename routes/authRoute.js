@@ -20,10 +20,4 @@ router.post("/forgetPassword", forgetPasswordValidator, forgetPassword);
 router.post("/verifyResetCode", verifyResetCode);
 router.put("/resetPassword", resetPassword);
 
-// router
-//   .route("/:id")
-//   .get(getUserValidator, getUser)
-//   .put(uploadUserImage, resizeUserImage, updateUserValidator, updateUser)
-//   .delete(deleteUserValidator, deleteUser);
-
 module.exports = router;

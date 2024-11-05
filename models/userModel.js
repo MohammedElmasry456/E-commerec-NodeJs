@@ -57,21 +57,21 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const setUrl = (doc) => {
-  if (doc.profileImage) {
-    const url = `${process.env.BASE_URL}/users/${doc.profileImage}`;
-    doc.profileImage = url;
-  }
-};
+// const setUrl = (doc) => {
+//   if (doc.profileImage) {
+//     const url = `${process.env.BASE_URL}/users/${doc.profileImage}`;
+//     doc.profileImage = url;
+//   }
+// };
 
-//for all but not create
-userSchema.post("init", (doc) => {
-  setUrl(doc);
-});
-//for create
-userSchema.post("save", (doc) => {
-  setUrl(doc);
-});
+// //for all but not create
+// userSchema.post("init", (doc) => {
+//   setUrl(doc);
+// });
+// //for create
+// userSchema.post("save", (doc) => {
+//   setUrl(doc);
+// });
 
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();

@@ -1,9 +1,5 @@
 const asyncHandler = require("express-async-handler");
-
-const stripe = require("stripe")(
-  "sk_test_51QEbQ4KxKEwo0eCACaoVbks8kRRXjxtriikGdjwCJddJj2COieEZ1PuJzdeXgiAhKs93oX65qT0PRyEUACGzqoYI00UDfv73Mz"
-);
-
+const stripe = require("stripe")(process.env.STRIPE_SECRET);
 const ApiError = require("../utils/apiError");
 const cartModel = require("../models/cartModel");
 const productModel = require("../models/productModel");

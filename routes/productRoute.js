@@ -6,7 +6,7 @@ const {
   updateProduct,
   deleteProduct,
   uploadProductImage,
-  resizeProductImage,
+  setProductImage,
 } = require("../services/productService");
 const {
   createProductValidator,
@@ -26,7 +26,7 @@ router
     protect,
     allowedTo("admin", "manager"),
     uploadProductImage,
-    resizeProductImage,
+    setProductImage,
     createProductValidator,
     createProduct
   )
@@ -38,7 +38,7 @@ router
     protect,
     allowedTo("admin", "manager"),
     uploadProductImage,
-    resizeProductImage,
+    setProductImage,
     updateProductValidator,
     updateProduct
   )

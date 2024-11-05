@@ -13,6 +13,7 @@
       "no-return-await": "off",
       "no-underscore-dangle": "off",
       "class-methods-use-this": "off",
+      "new-cap": "off",
       "no-use-before-define": "off",
       "array-callback-return": "off",
       "import/no-extraneous-dependencies":"off",
