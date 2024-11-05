@@ -73,7 +73,7 @@ app.use(xss());
 //Mount Routes
 mountRoutes(app);
 app.get("/", (req, res) => {
-  res.json({ message: "hello my world" });
+  res.json({ message: "hello my world!" });
 });
 app.all("*", (req, res, next) => {
   next(new ApiError(`cant't find this route ${req.originalUrl}`, 400));
