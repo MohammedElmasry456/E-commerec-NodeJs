@@ -14,7 +14,7 @@
   "dependencies": {
     "async-handler-express": "^0.2.4",
     "bcryptjs": "^2.4.3",
-    "cloudinary": "^2.5.1",
+    "cloudinary": "^1.21.0",
     "colors": "^1.4.0",
     "compression": "^1.7.4",
     "cors": "^2.8.5",
